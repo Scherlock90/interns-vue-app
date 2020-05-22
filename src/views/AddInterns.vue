@@ -1,16 +1,16 @@
 <template>
   <div class="home">
-    <InternList />
+    <Form />
   </div>
 </template>
 
 <script>
-import InternList from "@/components/interns-list/InternsList.vue";
+import Form from "@/components/interns-form/Form.vue";
 
 export default {
   name: "Home",
   components: {
-    InternList
+    Form
   }
 };
 </script>
