@@ -22,3 +22,5 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### platform to create url image - https://api.imgbb.com/

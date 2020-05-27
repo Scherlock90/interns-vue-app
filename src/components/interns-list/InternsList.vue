@@ -1,33 +1,40 @@
 <template>
   <b-container fluid>
-    <b-table
+    <div class="container-button">
+      <b-button variant="success" @click="goToPage('/add-interns')">
+        <b-icon icon="plus"></b-icon>
+        Add Interns
+      </b-button>
+    </div>
+    <b-table-lite
       show-empty
       small
-      stacked="md"
       label-cols-sm="3"
       :items="users"
       :fields="fields"
       :current-page="currentPage"
     >
       <template v-slot:cell(actions)="row">
-        <b-button
-          size="sm"
+        <b-icon
+          @click="goToPage('/edit-interns')"
+          icon="pencil-square"
+          style="width: 30px; height: 30px;"
+          class="icons"
+        ></b-icon>
+        <b-icon
           @click="info(row.item, row.index, $event.target)"
-          class="mr-1"
-        >
-          Edit
-        </b-button>
-        <b-button
-          size="sm"
-          @click="info(row.item, row.index, $event.target)"
-          class="mr-1"
-        >
-          Remove
-        </b-button>
+          icon="trash"
+          style="width: 30px; height: 30px;"
+          class="icons"
+        ></b-icon>
       </template>
 
       <template v-slot:cell(avatar)="row">
-        <img :src="row.item.avatar" :alt="row.item.fullname" />
+        <img
+          class="image-list"
+          :src="row.item.avatar"
+          :alt="row.item.fullname"
+        />
       </template>
 
       <template v-slot:row-details="row">
@@ -39,7 +46,7 @@
           </ul>
         </b-card>
       </template>
-    </b-table>
+    </b-table-lite>
 
     <b-modal
       :id="infoModal.id"
@@ -55,10 +62,10 @@
           v-model="currentPage"
           :total-rows="hasTotalUsers"
           :per-page="perPage"
-          @change="page => takeCurrentPage(page)"
           align="fill"
           size="sm"
           class="my-0"
+          @change="(page) => takeCurrentPage(page)"
         ></b-pagination>
       </b-col>
     </b-row>
@@ -67,7 +74,9 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import * as ns from "../../store/namespaces";
+import router from "@/router/index";
+import * as ns from "@/store/namespaces";
+
 export default {
   computed: {
     ...mapState(ns.USERS, ["usersState", "totalUsers"]),
@@ -77,44 +86,42 @@ export default {
       },
       set(value) {
         this.storeUsers(value);
-      }
+      },
     },
     hasTotalUsers: {
       get() {
         return this.totalUsers;
-      }
-    }
+      },
+    },
   },
 
   data() {
     return {
       users: [],
       fields: [
-        { key: "avatar", label: "" },
-        { key: "fullname", label: "fullname" },
-        { key: "id", label: "action" },
-        { key: "actions", label: "Actions" }
+        { key: "avatar", label: "", tdClass: "avatar" },
+        { key: "fullname", label: "Full Name", tdClass: "fullname" },
+        { key: "actions", label: "Actions", tdClass: "actions" },
       ],
       infoModal: {
         id: "info-modal",
         title: "",
-        content: ""
+        content: "",
       },
       currentPage: 1,
-      perPage: 6
+      perPage: 7,
     };
   },
 
   async mounted() {
     await this.updateUsers();
-    await this.createUser();
   },
 
   methods: {
     ...mapActions({
       setUser: "users/storeUsers",
       userFromApi: "users/storeUsersFromService",
-      createUser: "users/createUserService"
+      createUser: "users/createUserService",
     }),
 
     takeCurrentPage(page) {
@@ -136,12 +143,13 @@ export default {
         ({ avatar, first_name, last_name, id }) => ({
           fullname: first_name + " " + last_name,
           avatar,
-          id
+          id,
         })
       ));
     },
 
     info(item, index, button) {
+      console.log(JSON.stringify(item, null, 2))
       this.infoModal.title = `Row index: ${index}`;
       this.infoModal.content = JSON.stringify(item, null, 2);
       this.$root.$emit("bv::show::modal", this.infoModal.id, button);
@@ -150,9 +158,56 @@ export default {
     resetInfoModal() {
       this.infoModal.title = "";
       this.infoModal.content = "";
-    }
-  }
+    },
+
+    goToPage(page) {
+      router.push({ path: page });
+    },
+  },
 };
 </script>
 
-<style lang="scss" scope></style>
+<style lang="scss" scope>
+@import "../../assets/styles/app.scss";
+
+.container-fluid {
+  background-color: #ffffff;
+  width: 90%;
+
+  .icons {
+    cursor: pointer;
+  }
+
+  @include lg {
+    .image-list {
+      width: 40%;
+      border-radius: 100%;
+    }
+
+    .avatar {
+      max-width: 20px;
+    }
+
+    .fullname {
+      max-width: 60px;
+      text-align: left;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+}
+
+.container-button {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-dialog {
+  max-width: 1200px;
+  padding: 1rem;
+}
+</style>

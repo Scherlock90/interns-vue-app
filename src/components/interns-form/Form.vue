@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+    <b-form v-if="show">
       <div class="form-container">
         <div class="form-container__group">
           <FormGroup
@@ -21,26 +21,36 @@
           />
         </div>
         <div class="form-container__buttons">
-          <b-button type="submit" variant="success">Update Details</b-button>
-          <!-- <b-button type="reset" variant="danger">Reset</b-button> -->
+          <b-button variant="primary" @click="goToHome">
+            Back to home
+          </b-button>
+          <b-button
+            type="button"
+            @click.prevent="onSubmit"
+            variant="success"
+            :disabled="!isDisabled"
+          >
+            {{ buttonName }}
+          </b-button>
         </div>
       </div>
       <div class="container-image">
         <b-icon v-if="!file" icon="people-circle" class="icon-face"></b-icon>
-        <img v-else :src="file" alt="add user face" />
+        <img v-else class="image-blob" :src="file" alt="add user face" />
         <div>
           <label for="files" class="btn">
             <b-icon icon="camera" class="icon-photo"></b-icon>
             Change Photo
           </label>
-          <!-- <input id="files" style="visibility:hidden;" type="file"> -->
-          <b-form-file
+          <input
             id="files"
-            style="visibility:hidden; z-index: 1;"
-            v-model="file"
             class="mt-3"
+            style="visibility:hidden;"
+            accept=".jpg, .jpeg, .png"
+            type="file"
             plain
-          ></b-form-file>
+            @change="(f) => createImageUrl(f)"
+          />
         </div>
       </div>
     </b-form>
@@ -48,7 +58,10 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
+import router from "@/router/index";
 import FormGroup from "./form-group/FormGroup";
+import CreateImageUrl from "@/api/image-service/image.service";
 
 export default {
   components: {
@@ -61,38 +74,93 @@ export default {
       form: {
         first_name: "",
         last_name: "",
+        avatar: "",
       },
       show: true,
     };
   },
 
-  updated() {
-    console.log(this.form.first_name);
+  computed: {
+    isDisabled() {
+      const { first_name, last_name, avatar } = this.form;
+      return (first_name && last_name && avatar) !== "";
+    },
+    buttonName() {
+      return this.$route.path === "/edit-interns"
+        ? "Update details"
+        : "Add interns";
+    },
   },
 
   methods: {
+    ...mapActions({
+      createUser: "users/createUserService",
+    }),
+
     inputValue(value) {
       console.log(value);
       console.log(this.form);
     },
 
-    onSubmit(evt) {
-      evt.preventDefault();
-      alert(JSON.stringify(this.form));
+    onSubmit(e) {
+      e.preventDefault();
+
+      const data = { ...this.form, id: Math.random() };
+
+      try {
+        this.createUser(data);
+      } catch (err) {
+        console.log(err);
+      }
     },
 
     onReset(evt) {
       evt.preventDefault();
-      // Reset our form values
       this.form.email = "";
       this.form.name = "";
       this.form.food = null;
       this.form.checked = [];
-      // Trick to reset/clear native browser form validation state
       this.show = false;
       this.$nextTick(() => {
         this.show = true;
       });
+    },
+
+    createImageUrl(file) {
+      const blobImage = URL.createObjectURL(file.target.files[0]);
+
+      this.toDataUrl(blobImage, (myBase64) => {
+        CreateImageUrl.create(myBase64.slice(23)).subscribe(
+          ({
+            response: {
+              data: { url_viewer },
+            },
+          }) => {
+            this.form.avatar = url_viewer;
+          },
+          (err) => console.log(err)
+        );
+      });
+
+      this.file = blobImage;
+    },
+
+    toDataUrl(url, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          callback(reader.result);
+        };
+        reader.readAsDataURL(xhr.response);
+      };
+      xhr.open("GET", url);
+      xhr.responseType = "blob";
+      xhr.send();
+    },
+
+    goToHome() {
+      router.push({ path: "/" });
     },
   },
 };
@@ -146,6 +214,14 @@ form {
     padding: 1rem;
     background-color: #ffffff;
     position: relative;
+
+    .image-blob {
+      height: 7rem;
+      width: 7rem;
+      border-radius: 100%;
+      position: relative;
+      top: 2rem;
+    }
 
     .icon-face {
       margin-left: auto;

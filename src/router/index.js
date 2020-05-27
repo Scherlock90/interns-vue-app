@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
+import ListInterns from "../views/ListInterns.vue";
 
 const lazyLoad = view => {
   return () => import(`@/views/${view}.vue`);
@@ -11,12 +11,17 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "Home",
-    component: Home
+    name: "ListInterns",
+    component: ListInterns
   },
   {
     path: "/add-interns",
     name: "AddInterns",
+    component: lazyLoad("AddInterns")
+  },
+  {
+    path: "/edit-interns",
+    name: "EditInterns",
     component: lazyLoad("AddInterns")
   }
 ];

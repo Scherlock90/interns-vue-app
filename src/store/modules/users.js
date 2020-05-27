@@ -16,6 +16,9 @@ export default function makeUsersModule() {
     setUsers: (state, newUsersState) => {
       state.usersState = newUsersState;
     },
+    updateUsers: (state, newUser) => {
+      state.usersState = [...state.usersState, newUser];
+    },
     setTotal: (state, newTotaUsersState) => {
       state.totalUsers = newTotaUsersState;
     }
@@ -32,8 +35,9 @@ export default function makeUsersModule() {
       await commit("setUsers", deepData);
       await commit("setTotal", total);
     },
-    createUserService: async () => {
-      await userService.update().catch(err => console.error(err));
+    createUserService: async ({ commit }, data) => {
+      await userService.create(data).catch(err => console.error(err));
+      await commit("updateUsers", data)
     }
   };
 
