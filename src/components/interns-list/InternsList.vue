@@ -2,7 +2,11 @@
   <b-container fluid>
     <div class="container-button">
       <div>
-        <b-button variant="success" v-b-modal.modal-center @click="action('add')">
+        <b-button
+          variant="success"
+          v-b-modal.modal-center
+          @click="action('add')"
+        >
           <b-icon icon="plus"></b-icon>
           Add Interns
         </b-button>
@@ -60,15 +64,7 @@
         </b-card>
       </template>
     </b-table-lite>
-
-    <b-modal
-      :id="infoModal.id"
-      :title="infoModal.title"
-      ok-only
-      @hide="resetInfoModal"
-    >
-      <pre>{{ infoModal.content }}</pre>
-    </b-modal>
+    
     <b-row>
       <b-col sm="7" md="6" class="my-1">
         <b-pagination
@@ -87,13 +83,12 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
-import router from "@/router/index";
 import * as ns from "@/store/namespaces";
 import Form from "./interns-form/Form";
 
 export default {
   components: {
-    Form
+    Form,
   },
   computed: {
     ...mapState(ns.USERS, ["usersState", "totalUsers"]),
@@ -111,8 +106,8 @@ export default {
       },
     },
     methodApi() {
-      return this.apiAction === 'add' ? this.onSubmit :  this.updateUserDetails
-    }
+      return this.apiAction === "add" ? this.onSubmit : this.updateUserDetails;
+    },
   },
 
   data() {
@@ -133,12 +128,13 @@ export default {
       perPage: 7,
       form: {},
       apiAction: "",
-      userId: null
+      userId: null,
     };
   },
 
   async mounted() {
     await this.updateUsers();
+    console.log(this.users);
   },
 
   methods: {
@@ -147,7 +143,7 @@ export default {
       userFromApi: "users/storeUsersFromService",
       createUser: "users/createUserService",
       deleteUser: "users/deleteUser",
-      updateUser: "users/updateUser"
+      updateUser: "users/updateUser",
     }),
 
     action(action, userId = null) {
@@ -165,8 +161,8 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      this.users = this.hasUsers;
-      this.convertedInternsArray();
+
+      this.updateArray();
     },
 
     async onSubmit() {
@@ -177,22 +173,19 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      this.users = this.hasUsers;
-      this.convertedInternsArray();
+      this.updateArray();
     },
 
     async updateUserDetails() {
-      const data = { ...this.form, id: Math.random() };
+      const data = { ...this.form, id: this.userId };
 
       await this.updateUser([this.userId, data]);
-      this.users = this.hasUsers;
-      this.convertedInternsArray();
+      this.updateArray();
     },
 
     async removeUser({ id }) {
       await this.deleteUser(id);
-      this.users = this.hasUsers;
-      this.convertedInternsArray();
+      this.updateArray();
     },
 
     convertedInternsArray() {
@@ -205,21 +198,12 @@ export default {
       ));
     },
 
-    info(item, index, button) {
-      this.infoModal.title = `Row index: ${index}`;
-      this.infoModal.content = JSON.stringify(item, null, 2);
-      this.$root.$emit("bv::show::modal", this.infoModal.id, button);
-    },
-
-    resetInfoModal() {
-      this.infoModal.title = "";
-      this.infoModal.content = "";
-    },
-
-    goToPage(page) {
-      router.push({ path: page });
-    },
-  },
+    updateArray() {
+      setTimeout(() => {
+        (this.users = this.hasUsers), this.convertedInternsArray();
+      }, 100);
+    }
+  }
 };
 </script>
 

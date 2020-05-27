@@ -1,7 +1,3 @@
-import axios from "axios";
+import { ajax } from "rxjs/ajax";
 
-export const baseURL = "https://reqres.in/api/";
-
-export default axios.create({
-  baseURL
-});
+export default ajax;
