@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-form v-if="show">
+    <b-form v-if="show" @click="onSubmitValue">
       <div class="form-container">
         <div class="form-container__group">
           <FormGroup
@@ -8,7 +8,6 @@
             label="First Name"
             inputId="firstName"
             placeholder="Enter first name"
-            :inputValue="inputValue"
             :value.sync="form.first_name"
           />
           <FormGroup
@@ -17,21 +16,7 @@
             inputId="lastName"
             placeholder="Enter Last name"
             :value.sync="form.last_name"
-            :inputValue="inputValue"
           />
-        </div>
-        <div class="form-container__buttons">
-          <b-button variant="primary" @click="goToHome">
-            Back to home
-          </b-button>
-          <b-button
-            type="button"
-            @click.prevent="onSubmit"
-            variant="success"
-            :disabled="!isDisabled"
-          >
-            {{ buttonName }}
-          </b-button>
         </div>
       </div>
       <div class="container-image">
@@ -45,11 +30,11 @@
           <input
             id="files"
             class="mt-3"
-            style="visibility:hidden;"
+            style="visibility:hidden; z-index: 100000000"
             accept=".jpg, .jpeg, .png"
             type="file"
             plain
-            @change="(f) => createImageUrl(f)"
+            @input="(f) => createImageUrl(f)"
           />
         </div>
       </div>
@@ -58,8 +43,6 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
-import router from "@/router/index";
 import FormGroup from "./form-group/FormGroup";
 import CreateImageUrl from "@/api/image-service/image.service";
 
@@ -74,7 +57,7 @@ export default {
       form: {
         first_name: "",
         last_name: "",
-        avatar: "",
+        avatar: ""
       },
       show: true,
     };
@@ -93,52 +76,24 @@ export default {
   },
 
   methods: {
-    ...mapActions({
-      createUser: "users/createUserService",
-    }),
 
-    inputValue(value) {
-      console.log(value);
-      console.log(this.form);
-    },
-
-    onSubmit(e) {
-      e.preventDefault();
-
-      const data = { ...this.form, id: Math.random() };
-
-      try {
-        this.createUser(data);
-      } catch (err) {
-        console.log(err);
-      }
-    },
-
-    onReset(evt) {
-      evt.preventDefault();
-      this.form.email = "";
-      this.form.name = "";
-      this.form.food = null;
-      this.form.checked = [];
-      this.show = false;
-      this.$nextTick(() => {
-        this.show = true;
-      });
+    onSubmitValue() {
+      this.$emit("update:formValue", this.form);
     },
 
     createImageUrl(file) {
       const blobImage = URL.createObjectURL(file.target.files[0]);
 
-      this.toDataUrl(blobImage, (myBase64) => {
+      this.toDataUrl(blobImage, myBase64 => {
         CreateImageUrl.create(myBase64.slice(23)).subscribe(
           ({
             response: {
-              data: { url_viewer },
-            },
+              data: { url }
+            }
           }) => {
-            this.form.avatar = url_viewer;
+            this.form.avatar = url;
           },
-          (err) => console.log(err)
+          err => console.log(err)
         );
       });
 
@@ -157,10 +112,6 @@ export default {
       xhr.open("GET", url);
       xhr.responseType = "blob";
       xhr.send();
-    },
-
-    goToHome() {
-      router.push({ path: "/" });
     },
   },
 };

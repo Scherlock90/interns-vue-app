@@ -1,10 +1,22 @@
 <template>
   <b-container fluid>
     <div class="container-button">
-      <b-button variant="success" @click="goToPage('/add-interns')">
-        <b-icon icon="plus"></b-icon>
-        Add Interns
-      </b-button>
+      <div>
+        <b-button variant="success" v-b-modal.modal-center @click="action('add')">
+          <b-icon icon="plus"></b-icon>
+          Add Interns
+        </b-button>
+        <b-modal
+          id="modal-center"
+          centered
+          title="Add interns"
+          ok-title="Add interns"
+          ok-variant="success"
+          @ok.prevent="methodApi"
+        >
+          <Form :formValue.sync="form" />
+        </b-modal>
+      </div>
     </div>
     <b-table-lite
       show-empty
@@ -16,13 +28,14 @@
     >
       <template v-slot:cell(actions)="row">
         <b-icon
-          @click="goToPage('/edit-interns')"
+          v-b-modal.modal-center
+          @click="action('edit', row.item.id)"
           icon="pencil-square"
           style="width: 30px; height: 30px;"
           class="icons"
         ></b-icon>
         <b-icon
-          @click="info(row.item, row.index, $event.target)"
+          @click="removeUser(row.item)"
           icon="trash"
           style="width: 30px; height: 30px;"
           class="icons"
@@ -76,8 +89,12 @@
 import { mapState, mapActions } from "vuex";
 import router from "@/router/index";
 import * as ns from "@/store/namespaces";
+import Form from "./interns-form/Form";
 
 export default {
+  components: {
+    Form
+  },
   computed: {
     ...mapState(ns.USERS, ["usersState", "totalUsers"]),
     hasUsers: {
@@ -93,6 +110,9 @@ export default {
         return this.totalUsers;
       },
     },
+    methodApi() {
+      return this.apiAction === 'add' ? this.onSubmit :  this.updateUserDetails
+    }
   },
 
   data() {
@@ -108,8 +128,12 @@ export default {
         title: "",
         content: "",
       },
+      avatar: null,
       currentPage: 1,
       perPage: 7,
+      form: {},
+      apiAction: "",
+      userId: null
     };
   },
 
@@ -122,7 +146,14 @@ export default {
       setUser: "users/storeUsers",
       userFromApi: "users/storeUsersFromService",
       createUser: "users/createUserService",
+      deleteUser: "users/deleteUser",
+      updateUser: "users/updateUser"
     }),
+
+    action(action, userId = null) {
+      this.apiAction = action;
+      this.userId = userId;
+    },
 
     takeCurrentPage(page) {
       this.updateUsers(page);
@@ -138,6 +169,32 @@ export default {
       this.convertedInternsArray();
     },
 
+    async onSubmit() {
+      const data = { ...this.form, id: Math.random() };
+
+      try {
+        await this.createUser(data);
+      } catch (err) {
+        console.log(err);
+      }
+      this.users = this.hasUsers;
+      this.convertedInternsArray();
+    },
+
+    async updateUserDetails() {
+      const data = { ...this.form, id: Math.random() };
+
+      await this.updateUser([this.userId, data]);
+      this.users = this.hasUsers;
+      this.convertedInternsArray();
+    },
+
+    async removeUser({ id }) {
+      await this.deleteUser(id);
+      this.users = this.hasUsers;
+      this.convertedInternsArray();
+    },
+
     convertedInternsArray() {
       return (this.users = this.users.map(
         ({ avatar, first_name, last_name, id }) => ({
@@ -149,7 +206,6 @@ export default {
     },
 
     info(item, index, button) {
-      console.log(JSON.stringify(item, null, 2))
       this.infoModal.title = `Row index: ${index}`;
       this.infoModal.content = JSON.stringify(item, null, 2);
       this.$root.$emit("bv::show::modal", this.infoModal.id, button);

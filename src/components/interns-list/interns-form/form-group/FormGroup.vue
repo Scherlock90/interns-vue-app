@@ -6,7 +6,6 @@
       :value="value"
       :placeholder="placeholder"
       @keyup="onChange($event)"
-      @change="value => inputValue(value)"
       required
     ></b-form-input>
   </b-form-group>
@@ -20,7 +19,6 @@ export default {
     inputId: { type: String, required: true },
     placeholder: { type: String, required: true },
     value: { type: String, required: true },
-    inputValue: { type: Function, required: true }
   },
   methods: {
     onChange: function(event) {

@@ -10,18 +10,9 @@ export default {
     return Http.post(`${resource}`, { data });
   },
   update(id, data) {
-    return Http.patch(`${resource}/${id}`, {
-      data,
-      // data: {
-      //   email: "ssss.weaver@reqres.in",
-      //   first_name: "ss",
-      //   last_name: "ss",
-      //   avatar:
-      //     "https://s3.amazonaws.com/uifaces/faces/twitter/josephstein/128.jpg"
-      // }
-    });
+    return Http.patch(`${resource}/${id}`, data);
   },
   delete(id) {
-    return Http.patch(`${resource}/${id}`);
+    return Http.delete(`${resource}/${id}`);
   },
 };
