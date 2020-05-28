@@ -12,7 +12,6 @@
         :ok-title="buttonName"
         ok-variant="success"
         @ok="methodApi"
-        :ok-disabled="!disabledOKButton"
       >
         <Form :formValue.sync="form" />
       </b-modal>
@@ -71,7 +70,7 @@
           align="fill"
           size="sm"
           class="my-0"
-          @change="(page) => takeCurrentPage(page)"
+          @change="page => takeCurrentPage(page)"
         ></b-pagination>
       </b-col>
     </b-row>
@@ -125,17 +124,15 @@ export default {
       }
     },
     methodApi() {
-      return this.apiAction === "add" ? this.onSubmit : this.updateUserDetails;
+      return this.apiAction === "add"
+        ? this.createNewUser
+        : this.updateUserDetails;
     },
     titleModal() {
       return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
     },
     buttonName() {
       return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
-    },
-    disabledOKButton() {
-      const { first_name, last_name, avatar } = this.form;
-      return (first_name && last_name && avatar) !== "";
     }
   },
 
@@ -165,7 +162,7 @@ export default {
       this.updateArray();
     },
 
-    async onSubmit() {
+    async createNewUser() {
       const data = { ...this.form, id: Math.random() };
 
       await this.tryCatch(this.createUser(data));
