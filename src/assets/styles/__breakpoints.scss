@@ -1,4 +1,4 @@
-$screen-sm-min: 320px;
+$screen-sm-min: 325px;
 $screen-md-max: 576px;
 $screen-md-min: 768px;
 $screen-lg-min: 992px;
@@ -6,7 +6,7 @@ $screen-xl-min: 1200px;
 
 // Small devices
 @mixin sm-min {
-   @media (min-width: #{$screen-sm-min}) {
+   @media (max-width: #{$screen-sm-min}) {
        @content;
    }
 }

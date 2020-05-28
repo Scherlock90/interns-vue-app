@@ -228,7 +228,7 @@ export default {
 }
 
 .modal-content {
-  width: 96%;
+  width: 100%;
 
   @include md {
     width: 95%;
@@ -259,12 +259,10 @@ export default {
 }
 
 .container-fluid {
-  background-color: #ffffff;
   width: 90%;
 
   @include sm-max {
     width: 100%;
-    padding: 0;
   }
 
   .table thead th {
@@ -302,6 +300,11 @@ export default {
 
   .image-list {
     border-radius: 100%;
+
+    @include sm-max {
+      width: 10rem;
+    }
+
     @include lg {
       width: 40%;
     }

@@ -118,6 +118,7 @@ form {
           display: flex;
         }
 
+
         @include sm-max {
           margin: 0;
         }
@@ -144,6 +145,10 @@ form {
         min-height: 0;
         display: grid;
         width: 100%;
+      }
+
+      @include sm-min {
+        width: 92%;
       }
 
       @include md {
@@ -250,6 +255,10 @@ form {
       width: 100%;
       margin: 0;
       padding: 1rem 0;
+    }
+
+    @include sm-min {
+      width: 92%;
     }
 
     @include md {
