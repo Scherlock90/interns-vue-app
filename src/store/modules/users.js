@@ -7,7 +7,7 @@ export default function makeUsersModule() {
 
   const state = {
     usersState: [],
-    totalUsers: null,
+    totalUsers: null
   };
 
   const getters = {};
@@ -17,15 +17,15 @@ export default function makeUsersModule() {
       state.usersState = newUsersState;
     },
     updateUsers: (state, [id, data]) => {
-      state.usersState = state.usersState.map((us) =>
-        us.id === id ? { ...data } : us
+      state.usersState = state.usersState.map(user =>
+        user.id === id ? { ...data } : user
       );
     },
     addUsers: (state, newUser) => {
       state.usersState = [...state.usersState, newUser];
     },
     deleteUser: (state, userId) => {
-      state.usersState = state.usersState.filter((user) => user.id !== userId);
+      state.usersState = state.usersState.filter(user => user.id !== userId);
     },
     setTotal: (state, newTotaUsersState) => {
       state.totalUsers = newTotaUsersState;
@@ -42,30 +42,30 @@ export default function makeUsersModule() {
           commit("setTotal", total);
           commit("setUsers", data);
         },
-        (err) => console.log(err)
+        err => console.log(err)
       );
     },
     createUserService: async ({ commit }, data) => {
       await userService.create(data).subscribe(
         () => {},
-        (err) => console.log(err)
+        err => console.log(err)
       );
       await commit("addUsers", data);
     },
     updateUser: async ({ commit }, [id, data]) => {
       await userService.update(id, data).subscribe(
         () => {},
-        (err) => console.log(err)
+        err => console.log(err)
       );
       await commit("updateUsers", [id, data]);
     },
     deleteUser: async ({ commit }, userId) => {
       await userService.delete(+userId).subscribe(
         () => {},
-        (err) => console.log(err)
+        err => console.log(err)
       );
       await commit("deleteUser", userId);
-    },
+    }
   };
 
   return {
@@ -73,6 +73,6 @@ export default function makeUsersModule() {
     state,
     getters,
     mutations,
-    actions,
+    actions
   };
 }

@@ -34,7 +34,7 @@
             accept=".jpg, .jpeg, .png"
             type="file"
             plain
-            @input="(f) => createImageUrl(f)"
+            @input="f => createImageUrl(f)"
           />
         </div>
       </div>
@@ -48,7 +48,7 @@ import CreateImageUrl from "@/api/image-service/image.service";
 
 export default {
   components: {
-    FormGroup,
+    FormGroup
   },
 
   data() {
@@ -59,24 +59,11 @@ export default {
         last_name: "",
         avatar: ""
       },
-      show: true,
+      show: true
     };
   },
 
-  computed: {
-    isDisabled() {
-      const { first_name, last_name, avatar } = this.form;
-      return (first_name && last_name && avatar) !== "";
-    },
-    buttonName() {
-      return this.$route.path === "/edit-interns"
-        ? "Update details"
-        : "Add interns";
-    },
-  },
-
   methods: {
-
     onSubmitValue() {
       this.$emit("update:formValue", this.form);
     },
@@ -112,35 +99,27 @@ export default {
       xhr.open("GET", url);
       xhr.responseType = "blob";
       xhr.send();
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped lang="scss">
+@import "../../../assets/styles/app.scss";
+
 form {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 3rem;
-
   .form-container {
-    background-color: #ffffff;
-    width: 65%;
-    min-height: 16rem;
-    padding: 1rem;
-
     &__group {
-      display: flex;
-      width: 100%;
-      min-height: 11rem;
-
       #first-group {
         width: 100%;
         margin: 1rem 1rem 1rem 0;
 
         label {
           display: flex;
+        }
+
+        @include sm-max {
+          margin: 0;
         }
       }
 
@@ -151,27 +130,70 @@ form {
         label {
           display: flex;
         }
+
+        @include sm-max {
+          margin: 1rem 0 0 0;
+        }
+
+        @include md {
+          margin: 1rem 0 0 0;
+        }
+      }
+
+      @include sm-max {
+        min-height: 0;
+        display: grid;
+        width: 100%;
+      }
+
+      @include md {
+        display: grid;
+      }
+
+      @include xl {
+        display: flex;
+        width: 100%;
+        min-height: 11rem;
       }
     }
 
     &__buttons {
       display: flex;
     }
-  }
-  .container-image {
-    width: 30%;
-    min-height: 16rem;
-    margin: 1rem;
-    padding: 1rem;
-    background-color: #ffffff;
-    position: relative;
 
+    @include sm-max {
+      min-height: 0;
+      width: 100%;
+    }
+
+    @include md {
+      width: 50%;
+      min-height: 0;
+      padding: 0;
+    }
+
+    @include xl {
+      background-color: #ffffff;
+      width: 65%;
+      min-height: 16rem;
+      padding: 1rem;
+    }
+  }
+
+  .container-image {
     .image-blob {
       height: 7rem;
       width: 7rem;
       border-radius: 100%;
       position: relative;
       top: 2rem;
+      margin: auto;
+
+      @include sm-max {
+        display: flex;
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
 
     .icon-face {
@@ -181,6 +203,10 @@ form {
       height: 100px;
       position: relative;
       top: 2rem;
+
+      @include sm-max {
+        display: flex;
+      }
     }
 
     .icon-photo {
@@ -213,7 +239,49 @@ form {
       border-radius: 0.25rem;
       transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
         border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+      @include md {
+        top: 3.2rem;
+      }
     }
+
+    @include sm-max {
+      min-height: 0;
+      width: 100%;
+      margin: 0;
+      padding: 1rem 0;
+    }
+
+    @include md {
+      display: grid;
+      min-height: 0;
+      width: 50%;
+      padding: 0 0 0 1rem;
+    }
+
+    @include xl {
+      width: 30%;
+      min-height: 16rem;
+      background-color: #ffffff;
+      position: relative;
+      display: grid;
+    }
+  }
+
+  @include sm-max {
+    padding: 0;
+    display: grid;
+  }
+
+  @include md {
+    display: flex;
+    justify-content: initial;
+  }
+
+  @include xl {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
   }
 }
 </style>

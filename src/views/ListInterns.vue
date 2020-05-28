@@ -16,6 +16,8 @@ export default {
 </script>
 
 <style lang="scss" scope>
+@import "../assets/styles/app.scss";
+
 .list-interns {
   min-height: 100vh;
   display: block;
@@ -26,6 +28,11 @@ export default {
     padding: 2rem 5rem;
     width: 100%;
     font-size: 2rem;
+
+    @include sm-max {
+      padding: 1rem 0;
+      text-align: center;
+    }
   }
 }
 </style>

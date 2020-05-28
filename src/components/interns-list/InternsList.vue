@@ -1,28 +1,25 @@
 <template>
   <b-container fluid>
     <div class="container-button">
-      <div>
-        <b-button
-          variant="success"
-          v-b-modal.modal-center
-          @click="action('add')"
-        >
-          <b-icon icon="plus"></b-icon>
-          Add Interns
-        </b-button>
-        <b-modal
-          id="modal-center"
-          centered
-          title="Add interns"
-          ok-title="Add interns"
-          ok-variant="success"
-          @ok.prevent="methodApi"
-        >
-          <Form :formValue.sync="form" />
-        </b-modal>
-      </div>
+      <b-button variant="success" v-b-modal.modal-center @click="action('add')">
+        <b-icon icon="plus"></b-icon>
+        Add Interns
+      </b-button>
+      <b-modal
+        id="modal-center"
+        centered
+        :title="titleModal"
+        :ok-title="buttonName"
+        ok-variant="success"
+        @ok="methodApi"
+        :ok-disabled="!disabledOKButton"
+      >
+        <Form :formValue.sync="form" />
+      </b-modal>
     </div>
     <b-table-lite
+      striped
+      hover
       show-empty
       small
       label-cols-sm="3"
@@ -35,13 +32,13 @@
           v-b-modal.modal-center
           @click="action('edit', row.item.id)"
           icon="pencil-square"
-          style="width: 30px; height: 30px;"
+          style="width: 20px; height: 20px; margin-right: 0.5rem;"
           class="icons"
         ></b-icon>
         <b-icon
           @click="removeUser(row.item)"
           icon="trash"
-          style="width: 30px; height: 30px;"
+          style="width: 20px; height: 20px; margin-left: 0.5rem;"
           class="icons"
         ></b-icon>
       </template>
@@ -64,7 +61,7 @@
         </b-card>
       </template>
     </b-table-lite>
-    
+
     <b-row>
       <b-col sm="7" md="6" class="my-1">
         <b-pagination
@@ -90,25 +87,6 @@ export default {
   components: {
     Form,
   },
-  computed: {
-    ...mapState(ns.USERS, ["usersState", "totalUsers"]),
-    hasUsers: {
-      get() {
-        return this.usersState;
-      },
-      set(value) {
-        this.storeUsers(value);
-      },
-    },
-    hasTotalUsers: {
-      get() {
-        return this.totalUsers;
-      },
-    },
-    methodApi() {
-      return this.apiAction === "add" ? this.onSubmit : this.updateUserDetails;
-    },
-  },
 
   data() {
     return {
@@ -123,7 +101,6 @@ export default {
         title: "",
         content: "",
       },
-      avatar: null,
       currentPage: 1,
       perPage: 7,
       form: {},
@@ -132,9 +109,38 @@ export default {
     };
   },
 
+  computed: {
+    ...mapState(ns.USERS, ["usersState", "totalUsers"]),
+    hasUsers: {
+      get() {
+        return this.usersState;
+      },
+      set(value) {
+        this.storeUsers(value);
+      }
+    },
+    hasTotalUsers: {
+      get() {
+        return this.totalUsers;
+      }
+    },
+    methodApi() {
+      return this.apiAction === "add" ? this.onSubmit : this.updateUserDetails;
+    },
+    titleModal() {
+      return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
+    },
+    buttonName() {
+      return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
+    },
+    disabledOKButton() {
+      const { first_name, last_name, avatar } = this.form;
+      return (first_name && last_name && avatar) !== "";
+    }
+  },
+
   async mounted() {
-    await this.updateUsers();
-    console.log(this.users);
+    await this.takeUsers();
   },
 
   methods: {
@@ -143,7 +149,7 @@ export default {
       userFromApi: "users/storeUsersFromService",
       createUser: "users/createUserService",
       deleteUser: "users/deleteUser",
-      updateUser: "users/updateUser",
+      updateUser: "users/updateUser"
     }),
 
     action(action, userId = null) {
@@ -152,40 +158,45 @@ export default {
     },
 
     takeCurrentPage(page) {
-      this.updateUsers(page);
+      this.takeUsers(page);
     },
 
-    async updateUsers(pages = 1) {
-      try {
-        await this.userFromApi(pages);
-      } catch (err) {
-        console.log(err);
-      }
-
+    async takeUsers(pages = 1) {
+      await this.tryCatch(this.userFromApi(pages));
       this.updateArray();
     },
 
     async onSubmit() {
       const data = { ...this.form, id: Math.random() };
 
-      try {
-        await this.createUser(data);
-      } catch (err) {
-        console.log(err);
-      }
+      await this.tryCatch(this.createUser(data));
       this.updateArray();
     },
 
     async updateUserDetails() {
       const data = { ...this.form, id: this.userId };
 
-      await this.updateUser([this.userId, data]);
+      await this.tryCatch(this.updateUser([this.userId, data]));
       this.updateArray();
     },
 
     async removeUser({ id }) {
-      await this.deleteUser(id);
+      await this.tryCatch(this.deleteUser(id));
       this.updateArray();
+    },
+
+    tryCatch(setFunction) {
+      try {
+        setFunction;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    updateArray() {
+      setTimeout(() => {
+        (this.users = this.hasUsers), this.convertedInternsArray();
+      }, 300);
     },
 
     convertedInternsArray() {
@@ -197,43 +208,124 @@ export default {
         })
       ));
     },
-
-    updateArray() {
-      setTimeout(() => {
-        (this.users = this.hasUsers), this.convertedInternsArray();
-      }, 100);
-    }
-  }
+  },
 };
 </script>
 
 <style lang="scss" scope>
 @import "../../assets/styles/app.scss";
 
+.modal-open {
+  @include sm-max {
+    padding-right: 0 !important;
+  }
+
+  @include md {
+    padding-right: 0 !important;
+  }
+}
+
+.modal-dialog {
+  @include sm-max {
+    padding: 0 !important;
+  }
+}
+
+.modal-content {
+  width: 96%;
+
+  @include md {
+    width: 95%;
+    margin: auto;
+  }
+}
+
+.modal-footer {
+  button {
+    @include sm-max {
+      width: 100%;
+    }
+  }
+
+  .btn-secondary {
+    @include sm-max {
+      width: 100%;
+      order: 1;
+    }
+  }
+
+  .btn-success {
+    @include sm-max {
+      width: 100%;
+      order: 0;
+    }
+  }
+}
+
 .container-fluid {
   background-color: #ffffff;
   width: 90%;
+
+  @include sm-max {
+    width: 100%;
+    padding: 0;
+  }
+
+  .table thead th {
+    @include sm-max {
+      display: none;
+    }
+
+    &:nth-child(2) {
+      text-align: start;
+    }
+
+    &:nth-child(3) {
+      text-align: end;
+    }
+  }
+
+  tr {
+    @include sm-max {
+      border: 2px solid #dee2e6;
+    }
+  }
+
+  .table-sm th,
+  .table-sm td {
+    @include sm-max {
+      display: flex;
+      justify-content: space-evenly;
+      border-top: none;
+    }
+  }
 
   .icons {
     cursor: pointer;
   }
 
-  @include lg {
-    .image-list {
+  .image-list {
+    border-radius: 100%;
+    @include lg {
       width: 40%;
-      border-radius: 100%;
     }
+  }
 
-    .avatar {
+  .avatar {
+    @include lg {
       max-width: 20px;
     }
+  }
 
-    .fullname {
+  .fullname {
+    @include lg {
       max-width: 60px;
       text-align: left;
     }
+  }
 
-    .actions {
+  .actions {
+    @include lg {
       display: flex;
       justify-content: flex-end;
     }
@@ -244,6 +336,20 @@ export default {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+
+  button {
+    @include sm-max {
+      width: 100%;
+    }
+  }
+
+  @include md {
+    padding: 1rem;
+  }
+
+  @include xl {
+    padding: 1rem 0 1rem 1rem;
+  }
 }
 
 .modal-dialog {
