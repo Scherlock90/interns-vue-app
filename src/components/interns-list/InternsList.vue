@@ -145,9 +145,8 @@ export default {
 
   methods: {
     ...mapActions({
-      setUser: "users/storeUsers",
-      userFromApi: "users/storeUsersFromService",
-      createUser: "users/createUserService",
+      setUsers: "users/storeUsers",
+      createUser: "users/createUser",
       deleteUser: "users/deleteUser",
       updateUser: "users/updateUser"
     }),
@@ -162,7 +161,7 @@ export default {
     },
 
     async takeUsers(pages = 1) {
-      await this.tryCatch(this.userFromApi(pages));
+      await this.tryCatch(this.setUsers(pages));
       this.updateArray();
     },
 

@@ -16,12 +16,12 @@ export default function makeUsersModule() {
     setUsers: (state, newUsersState) => {
       state.usersState = newUsersState;
     },
-    updateUsers: (state, [id, data]) => {
+    updateUser: (state, [id, data]) => {
       state.usersState = state.usersState.map(user =>
         user.id === id ? { ...data } : user
       );
     },
-    addUsers: (state, newUser) => {
+    addUser: (state, newUser) => {
       state.usersState = [...state.usersState, newUser];
     },
     deleteUser: (state, userId) => {
@@ -33,10 +33,7 @@ export default function makeUsersModule() {
   };
 
   const actions = {
-    storeUsers: ({ commit }, newUsersState) => {
-      commit("setUsers", newUsersState);
-    },
-    storeUsersFromService: async ({ commit }, pages) => {
+    storeUsers: async ({ commit }, pages) => {
       await userService.get(pages).subscribe(
         ({ response: { total, data } }) => {
           commit("setTotal", total);
@@ -45,19 +42,19 @@ export default function makeUsersModule() {
         err => console.log(err)
       );
     },
-    createUserService: async ({ commit }, data) => {
+    createUser: async ({ commit }, data) => {
       await userService.create(data).subscribe(
         () => {},
         err => console.log(err)
       );
-      await commit("addUsers", data);
+      await commit("addUser", data);
     },
     updateUser: async ({ commit }, [id, data]) => {
       await userService.update(id, data).subscribe(
         () => {},
         err => console.log(err)
       );
-      await commit("updateUsers", [id, data]);
+      await commit("updateUser", [id, data]);
     },
     deleteUser: async ({ commit }, userId) => {
       await userService.delete(+userId).subscribe(
