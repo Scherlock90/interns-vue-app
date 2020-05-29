@@ -79,12 +79,13 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import { take } from "rxjs/operators";
 import * as ns from "@/store/namespaces";
 import Form from "./interns-form/Form";
 
 export default {
   components: {
-    Form,
+    Form
   },
 
   data() {
@@ -137,7 +138,7 @@ export default {
   },
 
   async mounted() {
-    await this.takeUsers();
+    await this.$eventToObservable(this.takeUsers()).pipe(take(1));
   },
 
   methods: {
@@ -192,7 +193,7 @@ export default {
     updateArray() {
       setTimeout(() => {
         (this.users = this.hasUsers), this.convertedInternsArray();
-      }, 300);
+      }, 800);
     },
 
     convertedInternsArray() {
