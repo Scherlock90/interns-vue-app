@@ -12,8 +12,10 @@
         :ok-title="buttonName"
         ok-variant="success"
         @ok="methodApi"
+        @cancel="resetValue"
+        :ok-disabled="!okDisabled"
       >
-        <Form :formValue.sync="form" />
+        <Form :formValue.sync="form" :readData="userDetails" />
       </b-modal>
     </div>
     <b-table-lite
@@ -29,7 +31,7 @@
       <template v-slot:cell(actions)="row">
         <b-icon
           v-b-modal.modal-center
-          @click="action('edit', row.item.id)"
+          @click="action('edit', row.item.id, row.item)"
           icon="pencil-square"
           style="width: 20px; height: 20px; margin-right: 0.5rem;"
           class="icons"
@@ -90,6 +92,7 @@ export default {
 
   data() {
     return {
+      userDetails: {},
       users: [],
       fields: [
         { key: "avatar", label: "", tdClass: "avatar" },
@@ -105,7 +108,7 @@ export default {
       perPage: 7,
       form: {},
       apiAction: "",
-      userId: null,
+      userId: null
     };
   },
 
@@ -134,6 +137,13 @@ export default {
     },
     buttonName() {
       return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
+    },
+    okDisabled() {
+      const avatarDif =
+        this.form.avatar !== undefined &&
+        this.form.avatar !== this.userDetails.avatar;
+      const firstLastDif = (this.form.first_name || this.form.last_name) !== undefined;
+      return firstLastDif || avatarDif ? true : false;
     }
   },
 
@@ -149,9 +159,12 @@ export default {
       updateUser: "users/updateUser"
     }),
 
-    action(action, userId = null) {
+    action(action, userId = null, user) {
       this.apiAction = action;
       this.userId = userId;
+      if (action === "edit") {
+        this.userDetails = user;
+      } else this.userDetails = {};
     },
 
     takeCurrentPage(page) {
@@ -168,6 +181,7 @@ export default {
 
       await this.tryCatch(this.createUser(data));
       this.updateArray();
+      this.form = {};
     },
 
     async updateUserDetails() {
@@ -175,11 +189,16 @@ export default {
 
       await this.tryCatch(this.updateUser([this.userId, data]));
       this.updateArray();
+      this.form = {};
     },
 
     async removeUser({ id }) {
       await this.tryCatch(this.deleteUser(id));
       this.updateArray();
+    },
+
+    resetValue() {
+      this.form = {};
     },
 
     tryCatch(setFunction) {

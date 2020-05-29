@@ -20,7 +20,11 @@
         </div>
       </div>
       <div class="container-image">
-        <b-icon v-if="!file" icon="people-circle" class="icon-face"></b-icon>
+        <b-icon
+          v-if="!file && !readValue"
+          icon="people-circle"
+          class="icon-face"
+        ></b-icon>
         <img v-else class="image-blob" :src="file" alt="add user face" />
         <div>
           <label for="files" class="btn">
@@ -30,7 +34,7 @@
           <input
             id="files"
             class="mt-3"
-            style="visibility:hidden; z-index: 100000000"
+            style="visibility:hidden;"
             accept=".jpg, .jpeg, .png"
             type="file"
             plain
@@ -48,7 +52,11 @@ import CreateImageUrl from "@/api/image-service/image.service";
 
 export default {
   components: {
-    FormGroup
+    FormGroup,
+  },
+
+  props: {
+    readData: { type: Object, required: false }
   },
 
   data() {
@@ -57,13 +65,37 @@ export default {
       form: {
         first_name: "",
         last_name: "",
-        avatar: ""
+        avatar: "",
       },
-      show: true
+      show: true,
     };
   },
 
+  computed: {
+    readValue() {
+      return this.readData.fullname && this.readData.fullname.split(" ");
+    },
+  },
+
+  mounted() {
+    this.updateFormDetails();
+  },
+
   methods: {
+    updateFormDetails() {
+      if (this.readData.fullname) {
+        this.form.first_name = this.readValue[0];
+        this.form.last_name = this.readValue[1];
+        this.form.avatar = this.readData.avatar;
+        this.file = this.readData.avatar;
+      } else
+        this.form = {
+          first_name: "",
+          last_name: "",
+          avatar: ""
+        };
+    },
+
     onSubmitValue() {
       this.$emit("update:formValue", this.form);
     },
@@ -75,8 +107,8 @@ export default {
         CreateImageUrl.create(myBase64.slice(23)).subscribe(
           ({
             response: {
-              data: { url }
-            }
+              data: { url },
+            },
           }) => {
             this.form.avatar = url;
           },
@@ -99,8 +131,8 @@ export default {
       xhr.open("GET", url);
       xhr.responseType = "blob";
       xhr.send();
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -117,7 +149,6 @@ form {
         label {
           display: flex;
         }
-
 
         @include sm-max {
           margin: 0;
