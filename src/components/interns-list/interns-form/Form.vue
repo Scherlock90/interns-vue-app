@@ -48,7 +48,7 @@
 
 <script>
 import FormGroup from "./form-group/FormGroup";
-import CreateImageUrl from "@/api/image-service/image.service";
+import { ServiceFactory } from "@/api/ServiceFactory";
 
 export default {
   components: {
@@ -104,16 +104,18 @@ export default {
       const blobImage = URL.createObjectURL(file.target.files[0]);
 
       this.toDataUrl(blobImage, myBase64 => {
-        CreateImageUrl.create(myBase64.slice(23)).subscribe(
-          ({
-            response: {
-              data: { url },
+        ServiceFactory.get("image")
+          .create(myBase64.slice(23))
+          .subscribe(
+            ({
+              response: {
+                data: { url }
+              }
+            }) => {
+              this.form.avatar = url;
             },
-          }) => {
-            this.form.avatar = url;
-          },
-          err => console.log(err)
-        );
+            err => console.log(err)
+          );
       });
 
       this.file = blobImage;

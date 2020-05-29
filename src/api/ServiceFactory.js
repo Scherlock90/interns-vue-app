@@ -1,7 +1,9 @@
 import InternsService from "./interns-service/interns.service";
+import ImageService from "./image-service/image.service";
 
 const services = {
-  users: InternsService
+  users: InternsService,
+  image: ImageService
 };
 
 export const ServiceFactory = {
