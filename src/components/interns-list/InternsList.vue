@@ -133,10 +133,10 @@ export default {
         : this.updateUserDetails;
     },
     titleModal() {
-      return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
+      return this.apiAction === "add" ? "Add interns" : "Edit interns";
     },
     buttonName() {
-      return this.apiAction === "add" ? "Add interns" : "Edit intnerns";
+      return this.apiAction === "add" ? "Add interns" : "Edit interns";
     },
     okDisabled() {
       const avatarDif =
